@@ -126,7 +126,6 @@ class Song
 				trace('LOADED FROM JSON: ' + songData.notes[i].sectionNotes);
 				// songData.notes[i].sectionNotes = songData.notes[i].sectionNotes
 			}
-
 				daNotes = songData.notes;
 				daSong = songData.song;
 				daBpm = songData.bpm; */

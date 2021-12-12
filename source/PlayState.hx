@@ -1020,6 +1020,21 @@ class PlayState extends MusicBeatState
 		scoreTxt.visible = !ClientPrefs.hideHud;
 		add(scoreTxt);
 		// ABOVE - MODIFIED SCORETXT
+		
+		
+		var localDifficultyText:String = CoolUtil.difficulties[storyDifficulty];
+		var songNameWM:String = Paths.formatToSongPath(SONG.song);
+		var firstLetter:String = songNameWM.substr(0, 1);
+		var restLetter:String = songNameWM.substr(1);
+		songNameWM = firstLetter.toUpperCase() + restLetter;
+		
+		var wmText:FlxText = new FlxText(12, healthBarBG.y + 50, 0, songNameWM + " - " + localDifficultyText);
+
+		wmText.scrollFactor.set();
+		wmText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		add(wmText);
+		
+
 
 		botplayTxt = new FlxText(400, timeBarBG.y + 55, FlxG.width - 800, "BOTPLAY", 32);
 		botplayTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
@@ -1039,6 +1054,7 @@ class PlayState extends MusicBeatState
 		iconP1.cameras = [camHUD];
 		iconP2.cameras = [camHUD];
 		scoreTxt.cameras = [camHUD];
+		wmText.cameras = [camHUD];
 		botplayTxt.cameras = [camHUD];
 		timeBar.cameras = [camHUD];
 		timeBarBG.cameras = [camHUD];
@@ -2181,14 +2197,14 @@ class PlayState extends MusicBeatState
 		super.update(elapsed);
 
 		if(ratingName == '?') {
-			scoreTxt.text = 'Score:' + songScore + ' | Combo Breaks:' + songMisses + ' | Accuracy:' + Highscore.floorDecimal(ratingPercent * 100, 2) + '% | N\\A';
+			scoreTxt.text = 'Score:' + songScore + ' | Combo Breaks:' + songMisses + ' | Accuracy:' + Highscore.floorDecimal(ratingPercent * 100, 2) + '% | N/A';
 		} else {
 			scoreTxt.text = 'Score:' + songScore + ' | Combo Breaks:' + songMisses + ' | Accuracy:' + Highscore.floorDecimal(ratingPercent * 100, 2) + '% | (' + ratingFC + ') ' + ratingName;//peeps wanted no integer rating
 		}
 
 		if(botplayTxt.visible) {
-			botplaySine += 180 * elapsed;
-			botplayTxt.alpha = 1 - Math.sin((Math.PI * botplaySine) / 180);
+			// botplaySine += 180 * elapsed;
+			botplayTxt.alpha = 0.0; // 1 - Math.sin((Math.PI * botplaySine) / 180);
 		}
 
 		if (controls.PAUSE && startedCountdown && canPause)
@@ -3293,16 +3309,18 @@ class PlayState extends MusicBeatState
 
 			if(ClientPrefs.scoreZoom)
 			{
-				if(scoreTxtTween != null) {
+				/*if(scoreTxtTween != null) {
 					scoreTxtTween.cancel();
 				}
+				/*
 				scoreTxt.scale.x = 1.075;
 				scoreTxt.scale.y = 1.075;
 				scoreTxtTween = FlxTween.tween(scoreTxt.scale, {x: 1, y: 1}, 0.2, {
 					onComplete: function(twn:FlxTween) {
 						scoreTxtTween = null;
 					}
-				});
+					
+				}); */
 			}
 		}
 
