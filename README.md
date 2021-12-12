@@ -1,4 +1,10 @@
-# Friday Night Funkin' - Psych Engine
+# Sike Engine (Psych Engine with Kade Engine UI)
+If you remove the timebar there is no way you can tell the difference between Kade Engine and Psych engine.
+SCREENSHOT DEMO:
+![image](https://user-images.githubusercontent.com/31808925/145700888-1a626c60-ec7d-48db-8b28-1fc298bcce08.png)
+
+
+## Friday Night Funkin' - Psych Engine
 Engine originally used on [Mind Games Mod](https://gamebanana.com/mods/301107), intended to be a fix for the vanilla version's many issues while keeping the casual play aspect of it. Also aiming to be an easier alternative to newbie coders.
 
 ## Installation:
