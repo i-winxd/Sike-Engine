@@ -10,8 +10,6 @@ class BackgroundGirls extends FlxSprite
 	{
 		super(x, y);
 
-		if(ClientPrefs.maxOptimization) kill();
-
 		// BG fangirls dissuaded
 		frames = Paths.getSparrowAtlas('weeb/bgFreaks');
 
