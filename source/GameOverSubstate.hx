@@ -33,16 +33,9 @@ class GameOverSubstate extends MusicBeatSubstate
 		endSoundName = 'gameOverEnd';
 	}
 
-	override function create()
-	{
-		instance = this;
-		PlayState.instance.callOnLuas('onGameOverStart', []);
-
-		super.create();
-	}
-
 	public function new(x:Float, y:Float, camX:Float, camY:Float)
 	{
+		PlayState.STATE.setOnLuas('inGameOver', true);
 		super();
 
 		PlayState.instance.setOnLuas('inGameOver', true);
@@ -76,7 +69,7 @@ class GameOverSubstate extends MusicBeatSubstate
 	{
 		super.update(elapsed);
 
-		PlayState.instance.callOnLuas('onUpdate', [elapsed]);
+		PlayState.STATE.setOnLuas('onUpdate', [elapsed]);
 		if(updateCamera) {
 			var lerpVal:Float = CoolUtil.boundTo(elapsed * 0.6, 0, 1);
 			camFollowPos.setPosition(FlxMath.lerp(camFollowPos.x, camFollow.x, lerpVal), FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal));
@@ -92,6 +85,7 @@ class GameOverSubstate extends MusicBeatSubstate
 			FlxG.sound.music.stop();
 			PlayState.deathCounter = 0;
 			PlayState.seenCutscene = false;
+			PlayState.STATE.setOnLuas('seenCutscene', false);
 
 			if (PlayState.isStoryMode)
 				MusicBeatState.switchState(new StoryMenuState());
@@ -99,7 +93,7 @@ class GameOverSubstate extends MusicBeatSubstate
 				MusicBeatState.switchState(new FreeplayState());
 
 			FlxG.sound.playMusic(Paths.music('freakyMenu'));
-			PlayState.instance.callOnLuas('onGameOverConfirm', [false]);
+			PlayState.STATE.setOnLuas('onGameOverConfirm', [false]);
 		}
 
 		if (boyfriend.animation.curAnim.name == 'firstDeath')
@@ -121,7 +115,7 @@ class GameOverSubstate extends MusicBeatSubstate
 		{
 			Conductor.songPosition = FlxG.sound.music.time;
 		}
-		PlayState.instance.callOnLuas('onUpdatePost', [elapsed]);
+		PlayState.STATE.setOnLuas('onUpdatePost', [elapsed]);
 	}
 
 	override function beatHit()
@@ -153,7 +147,7 @@ class GameOverSubstate extends MusicBeatSubstate
 					MusicBeatState.resetState();
 				});
 			});
-			PlayState.instance.callOnLuas('onGameOverConfirm', [true]);
+			PlayState.STATE.setOnLuas('onGameOverConfirm', [true]);
 		}
 	}
 }

@@ -63,6 +63,8 @@ class PlayState extends MusicBeatState
 	public static var STRUM_X = 42;
 	public static var STRUM_X_MIDDLESCROLL = -278;
 
+	public static var STATE:PlayState;
+
 	public static var ratingStuff:Array<Dynamic> = [
 		['D', 0.6],
 		['C', 0.7],
@@ -188,7 +190,6 @@ class PlayState extends MusicBeatState
 	public var cameraSpeed:Float = 1;
 
 	var dialogue:Array<String> = ['blah blah blah', 'coolswag'];
-	var dialogueJson:DialogueFile = null;
 
 	var halloweenBG:BGSprite;
 	var halloweenWhite:BGSprite;
@@ -269,6 +270,8 @@ class PlayState extends MusicBeatState
 
 	override public function create()
 	{
+		PlayState.STATE = this;
+
 		#if MODS_ALLOWED
 		Paths.destroyLoadedImages();
 		#end
@@ -823,10 +826,18 @@ class PlayState extends MusicBeatState
 				insert(members.indexOf(dadGroup) - 1, evilTrail);
 		}
 
+		var dialogueJson:DialogueFile = null;
 		var file:String = Paths.json(songName + '/dialogue'); //Checks for json/Psych Engine dialogue
 		if (OpenFlAssets.exists(file)) {
 			dialogueJson = DialogueBoxPsych.parseDialogue(file);
 		}
+
+		#if MODS_ALLOWED
+		var file:String = Paths.modsJson(songName + '/dialogue'); //Checks for json/Psych Engine dialogue in mod folder
+		if(dialogueJson == null && FileSystem.exists(file)) { // Only check if dialogue has not already been found
+			dialogueJson = DialogueBoxPsych.parseDialogue(file);
+		}
+		#end
 
 		var file:String = Paths.txt(songName + '/' + songName + 'Dialogue'); //Checks for vanilla/Senpai dialogue
 		if (OpenFlAssets.exists(file)) {
@@ -1159,9 +1170,11 @@ class PlayState extends MusicBeatState
 					schoolIntro(doof);
 
 				default:
-					startCountdown();
+					if(dialogueJson != null) startDialogue(dialogueJson)
+					else startCountdown();
 			}
 			seenCutscene = true;
+			setOnLuas('seenCutscene', true);
 		} else {
 			startCountdown();
 		}
@@ -1361,7 +1374,7 @@ class PlayState extends MusicBeatState
 			inCutscene = true;
 			CoolUtil.precacheSound('dialogue');
 			CoolUtil.precacheSound('dialogueClose');
-			var doof:DialogueBoxPsych = new DialogueBoxPsych(dialogueFile, song);
+			var doof:DialogueBoxPsych = new DialogueBoxPsych(dialogueFile, (dialogueFile.song != null ? dialogueFile.song : song));
 			doof.scrollFactor.set();
 			if(endingSong) {
 				doof.finishThing = endSong;
@@ -2580,8 +2593,7 @@ class PlayState extends MusicBeatState
 				vocals.stop();
 				FlxG.sound.music.stop();
 
-				persistentUpdate = false;
-				persistentDraw = false;
+				openSubState(new GameOverSubstate(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y, camFollowPos.x, camFollowPos.y));
 				for (tween in modchartTweens) {
 					tween.active = true;
 				}
@@ -3059,17 +3071,41 @@ class PlayState extends MusicBeatState
 
 	function finishSong():Void
 	{
+		endingSong = true;
+		canPause = false;
+
 		var finishCallback:Void->Void = endSong; //In case you want to change it in a specific song.
 
 		updateTime = false;
 		FlxG.sound.music.volume = 0;
 		vocals.volume = 0;
 		vocals.pause();
+
+		var songName:String = Paths.formatToSongPath(SONG.song);
+
+		var dialogueJson:DialogueFile = null;
+
+		if(isStoryMode) {
+			var file:String = Paths.json(songName + '/dialogueEND'); //Checks for json/Psych Engine dialogue
+			if (OpenFlAssets.exists(file)) {
+				dialogueJson = DialogueBoxPsych.parseDialogue(file);
+			}
+
+			#if MODS_ALLOWED
+			var file:String = Paths.modsJson(songName + '/dialogueEND'); //Checks for json/Psych Engine dialogue in mod folder
+			if(dialogueJson == null && FileSystem.exists(file)) { // Only check if dialogue has not already been found
+				dialogueJson = DialogueBoxPsych.parseDialogue(file);
+			}
+			#end
+		}
+
 		if(ClientPrefs.noteOffset <= 0) {
-			finishCallback();
+			if(dialogueJson != null) startDialogue(dialogueJson);
+			else finishCallback();
 		} else {
 			finishTimer = new FlxTimer().start(ClientPrefs.noteOffset / 1000, function(tmr:FlxTimer) {
-				finishCallback();
+				if(dialogueJson != null) startDialogue(dialogueJson);
+				else finishCallback();
 			});
 		}
 	}
@@ -3099,14 +3135,13 @@ class PlayState extends MusicBeatState
 		timeBarBG.visible = false;
 		timeBar.visible = false;
 		timeTxt.visible = false;
-		canPause = false;
-		endingSong = true;
 		camZooming = false;
 		inCutscene = false;
 		updateTime = false;
 
 		deathCounter = 0;
 		seenCutscene = false;
+		setOnLuas('seenCutscene', false);
 
 		#if ACHIEVEMENTS_ALLOWED
 		if(achievementObj != null) {
@@ -3122,7 +3157,6 @@ class PlayState extends MusicBeatState
 			}
 		}
 		#end
-
 		
 		#if LUA_ALLOWED
 		var ret:Dynamic = callOnLuas('onEndSong', []);
