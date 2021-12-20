@@ -1234,10 +1234,24 @@ class PlayState extends MusicBeatState
 
 	public function addTextToDebug(text:String) {
 		#if LUA_ALLOWED
-		luaDebugGroup.forEachAlive(function(spr:DebugLuaText) {
-			spr.y += 20;
-		});
-		luaDebugGroup.add(new DebugLuaText(text, luaDebugGroup));
+		if (text != '') {
+			var splitText:Array<String> = text.split('\n');
+			trace(splitText);
+	
+			luaDebugGroup.forEachAlive(function(spr:DebugLuaText) {
+				for (i in 0...splitText.length) {
+					spr.y += 20;
+				}
+				if (spr.y > FlxG.height) {
+					spr.disableTime = 0;
+				}
+			});
+			for (i in 0...splitText.length) {
+				var debugText:DebugLuaText = new DebugLuaText(splitText[i], luaDebugGroup);
+				debugText.y += 20 * i;
+				luaDebugGroup.add(debugText);
+			}
+		}
 		#end
 	}
 

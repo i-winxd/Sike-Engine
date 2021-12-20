@@ -1650,7 +1650,7 @@ class FunkinLua {
 				return;
 			}
 			PlayState.instance.addTextToDebug(text);
-			trace(text);
+			//trace(text);
 		}
 		#end
 	}
@@ -1767,7 +1767,7 @@ class ModchartText extends FlxText
 
 class DebugLuaText extends FlxText
 {
-	private var disableTime:Float = 6;
+	public var disableTime:Float = 6;
 	public var parentGroup:FlxTypedGroup<DebugLuaText>; 
 	public function new(text:String, parentGroup:FlxTypedGroup<DebugLuaText>) {
 		this.parentGroup = parentGroup;
