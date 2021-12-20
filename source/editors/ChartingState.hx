@@ -45,9 +45,15 @@ import lime.media.AudioBuffer;
 import haxe.io.Bytes;
 import flash.geom.Rectangle;
 import flixel.util.FlxSort;
+
+#if sys
+// TODO: These are really unsafe and prevent compilation if the sys preprocessor isn't defined.
+// We hardly need to worry but it harms compatibility with other compilation targets (namely JS).
+import sys.FileSystem;
+#end
+
 #if MODS_ALLOWED
 import sys.io.File;
-import sys.FileSystem;
 import flash.media.Sound;
 #end
 
